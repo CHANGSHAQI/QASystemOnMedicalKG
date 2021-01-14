@@ -63,16 +63,16 @@ class QuestionClassifier:
         medical_dict = self.check_medical(question)
         if not medical_dict:
             return {}
-        data['args'] = medical_dict
+        data['args'] = medical_dict       '''形式可能如下dict:{'args':{'肺气肿':['disease']}}''''
         #收集问句当中所涉及到的实体类型
         types = []
-        for type_ in medical_dict.values():
+        for type_ in medical_dict.values(): '''获取的是disease，这个可能是有多个的'''
             types += type_
-        question_type = 'others'
+        question_type = 'others'           '''如果有，放到集合，没有声明一个others类型'''
 
         question_types = []
 
-        # 症状
+        # 症状 '''wds就是那些疑问词,sent是查询的话,只要疑问词出现在话里,就返回true'''
         if self.check_words(self.symptom_qwds, question) and ('disease' in types):
             question_type = 'disease_symptom'
             question_types.append(question_type)
@@ -90,10 +90,10 @@ class QuestionClassifier:
             question_type = 'disease_acompany'
             question_types.append(question_type)
 
-        # 推荐食品
-        if self.check_words(self.food_qwds, question) and 'disease' in types:
+        # 推荐食品  所以如肺气肿吃点什么好呢   疑问词吃出现在question里,且根据肺气肿能识别是疾病
+        if self.check_words(self.food_qwds, question) and 'disease' in types:  
             deny_status = self.check_words(self.deny_words, question)
-            if deny_status:
+            if deny_status:  #如果有否定词，就是不吃
                 question_type = 'disease_not_food'
             else:
                 question_type = 'disease_do_food'
@@ -164,7 +164,7 @@ class QuestionClassifier:
         # 将多个分类结果进行合并处理，组装成一个字典
         data['question_types'] = question_types
 
-        return data
+        return data  #返回的结果类型就是dict:{'args':{'肺气肿':['disease']},'question_types':['disease_do_food']}
 
     '''构造词对应的类型'''
     def build_wdtype_dict(self):
@@ -198,21 +198,21 @@ class QuestionClassifier:
     '''问句过滤'''
     def check_medical(self, question):
         region_wds = []
-        for i in self.region_tree.iter(question):
-            wd = i[1][1]
-            region_wds.append(wd)
+        for i in self.region_tree.iter(question):         '''去找问句中的哪些关键字在我的树中出现了 它可能是(2,(32880,'肺气肿'))形式'''
+            wd = i[1][1]                                  '''拿到这个肺气肿这个词'''
+            region_wds.append(wd)                          '''添加到识别词的集合中'''
         stop_wds = []
-        for wd1 in region_wds:
-            for wd2 in region_wds:
+        for wd1 in region_wds:                      
+            for wd2 in region_wds:                        '''获取每一个词跟其他词进行匹配，如果出现在其它词中，又不相等，加到停用词中'''
                 if wd1 in wd2 and wd1 != wd2:
                     stop_wds.append(wd1)
-        final_wds = [i for i in region_wds if i not in stop_wds]
-        final_dict = {i:self.wdtype_dict.get(i) for i in final_wds}
+        final_wds = [i for i in region_wds if i not in stop_wds]  '''将集合中的停用词进行去除'''
+        final_dict = {i:self.wdtype_dict.get(i) for i in final_wds}  '''在词典中去取它的类型 返回的是如下形式dict:{"肺气肿":["disease"]}''''
 
         return final_dict
 
     '''基于特征词进行分类'''
-    def check_words(self, wds, sent):
+    def check_words(self, wds, sent):  '''wds就是那些疑问词,sent是查询的话,只要疑问词出现在话里,就返回true'''
         for wd in wds:
             if wd in sent:
                 return True
