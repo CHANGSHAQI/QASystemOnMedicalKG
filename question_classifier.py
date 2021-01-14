@@ -33,7 +33,7 @@ class QuestionClassifier:
         self.region_tree = self.build_actree(list(self.region_words))
         # 构建词典
         self.wdtype_dict = self.build_wdtype_dict()
-        # 问句疑问词
+        # 问句疑问词   根据这个提的疑问词去找关系,即找边,像我的项目直接用那个json就行
         self.symptom_qwds = ['症状', '表征', '现象', '症候', '表现']
         self.cause_qwds = ['原因','成因', '为什么', '怎么会', '怎样才', '咋样才', '怎样会', '如何会', '为啥', '为何', '如何才会', '怎么才会', '会导致', '会造成']
         self.acompany_qwds = ['并发症', '并发', '一起发生', '一并发生', '一起出现', '一并出现', '一同发生', '一同出现', '伴随发生', '伴随', '共现']
@@ -173,7 +173,7 @@ class QuestionClassifier:
             wd_dict[wd] = []
             if wd in self.disease_wds:
                 wd_dict[wd].append('disease')
-            if wd in self.department_wds:
+            if wd in self.department_wds:          '''数据形式可能是dict:{"口服液":['producter'],"感冒":['disease']} 就是对每个特征词进行分类''' 
                 wd_dict[wd].append('department')
             if wd in self.check_wds:
                 wd_dict[wd].append('check')
