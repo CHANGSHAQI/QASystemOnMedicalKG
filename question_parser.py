@@ -20,9 +20,9 @@ class QuestionPaser:
 
     '''解析主函数'''
     def parser_main(self, res_classify):
-        args = res_classify['args']
-        entity_dict = self.build_entitydict(args)
-        question_types = res_classify['question_types']
+        args = res_classify['args']   #dict:{"肺气肿":["disease"]}
+        entity_dict = self.build_entitydict(args) #dict:{"disease":["肺气肿"]}
+        question_types = res_classify['question_types'] #['disease_do_food']
         sqls = []
         for question_type in question_types:
             sql_ = {}
@@ -43,7 +43,7 @@ class QuestionPaser:
             elif question_type == 'disease_not_food':
                 sql = self.sql_transfer(question_type, entity_dict.get('disease'))
 
-            elif question_type == 'disease_do_food':
+            elif question_type == 'disease_do_food':  #如果匹配到了吃什么东西 将关系和肺气肿传进去
                 sql = self.sql_transfer(question_type, entity_dict.get('disease'))
 
             elif question_type == 'food_not_disease':
